@@ -4,7 +4,7 @@
 [![Testing](https://github.com/universal-packages/universal-localization-react/actions/workflows/testing.yml/badge.svg)](https://github.com/universal-packages/universal-localization-react/actions/workflows/testing.yml)
 [![codecov](https://codecov.io/gh/universal-packages/universal-localization-react/branch/main/graph/badge.svg?token=CXPJSN8IGL)](https://codecov.io/gh/universal-packages/universal-localization-react)
 
-React bindings for [ Localization](https://github.com/universal-packages/universal-localization), as an alternative for simple context localization and other localization management libraries.
+React bindings for [ Localization](https://github.com/universal-packages/universal-localization).
 
 ## Install
 

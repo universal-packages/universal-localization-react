@@ -1,5 +1,6 @@
-import { Localization } from '@universal-packages/localization'
 import { createContext } from 'react'
+
+import Localization from './Localization'
 
 const localizationContext = createContext<Localization>(null as any)
 

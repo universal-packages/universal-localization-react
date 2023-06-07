@@ -1,8 +1,8 @@
-import { Locale, Localization } from '@universal-packages/localization'
 import React from 'react'
 
+import Localization from './Localization'
 import context from './context'
-import { LocalizationProviderProps } from './types'
+import { Locale, LocalizationProviderProps } from './types'
 
 let LAST_LOCALE: Locale
 

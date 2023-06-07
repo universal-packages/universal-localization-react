@@ -15,7 +15,8 @@
     "format": "prettier --write \"./{src,tests}/**/*.{ts,tsx,js,jsx,json}\""
   },
   "dependencies": {
-    "@universal-packages/localization": "^1.0.1"
+    "@universal-packages/object-navigation": "^1.0.0",
+    "@universal-packages/variable-replacer": "^1.1.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

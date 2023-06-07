@@ -1,7 +1,6 @@
-import { LocalizationDictionary } from '@universal-packages/localization'
 import React from 'react'
 
-import { LocalizationProvider, useLocalization, useTranslate } from '../src'
+import { LocalizationDictionary, LocalizationProvider, useLocalization, useTranslate } from '../src'
 
 const dictionary: LocalizationDictionary = {
   en: {

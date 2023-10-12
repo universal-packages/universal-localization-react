@@ -43,12 +43,6 @@
     "testRegex": "(/tests/.*\\.test\\.(ts|tsx)?)$",
     "collectCoverageFrom": [
       "src/**/*.(ts|tsx)"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setupTests.ts"
-    ],
-    "watchPathIgnorePatterns": [
-      "<rootDir>/tmp"
     ]
   },
   "prettier": {

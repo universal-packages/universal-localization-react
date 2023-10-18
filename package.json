@@ -36,11 +36,13 @@
     "typescript": "^5.2.2"
   },
   "jest": {
-    "testEnvironment": "jsdom",
     "preset": "ts-jest",
-    "testRegex": "(/tests/.*\\.test\\.(ts|tsx)?)$",
+    "testEnvironment": "jsdom",
     "collectCoverageFrom": [
       "src/**/*.(ts|tsx)"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.ts"
     ]
   },
   "prettier": {

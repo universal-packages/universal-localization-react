@@ -1,6 +1,6 @@
+import { EventEmitter } from '@universal-packages/event-emitter'
 import { navigateObject } from '@universal-packages/object-navigation'
 import { replaceVars } from '@universal-packages/variable-replacer'
-import EventEmitter from 'events'
 
 import { Locale, LocalizationDictionary } from './types'
 
@@ -45,7 +45,7 @@ export default class Localization extends EventEmitter {
       }
     }
 
-    this.emit('locale', this.locale, this.localeDictionary)
+    this.emit('locale', { payload: {locale: this.locale, localeDictionary: this.localeDictionary} })
   }
 
   public translate(subject: string | string[], locales?: Record<string, any>): string {

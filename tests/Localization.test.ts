@@ -134,6 +134,9 @@ describe(Localization, (): void => {
     localization.on('locale', callback)
     localization.setLocale('es-MX')
 
-    expect(callback).toHaveBeenCalledWith('es-MX', { hello: 'Que onda', world: 'Mundo', name: { hello: 'Que onda {{name}} {{emoji}}' } })
+    expect(callback).toHaveBeenCalledWith({
+      event: 'locale',
+      payload: { locale: 'es-MX', localeDictionary: { hello: 'Que onda', world: 'Mundo', name: { hello: 'Que onda {{name}} {{emoji}}' } } }
+    })
   })
 })

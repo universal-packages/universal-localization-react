@@ -1,3 +1,4 @@
+import { EmittedEvent } from '@universal-packages/event-emitter'
 import React from 'react'
 
 import Localization from './Localization'
@@ -10,8 +11,8 @@ export default function LocalizationProvider(props: LocalizationProviderProps): 
   const localization = React.useMemo(() => new Localization(props.dictionary, props.defaultLocale), [props.dictionary, props.defaultLocale])
 
   React.useEffect(() => {
-    const changedListener = (locale: Locale) => {
-      LAST_LOCALE = locale
+    const changedListener = (event: EmittedEvent) => {
+      LAST_LOCALE = event.payload.locale
     }
 
     localization.on('locale', changedListener)

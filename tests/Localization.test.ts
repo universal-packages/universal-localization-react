@@ -101,7 +101,10 @@ describe(Localization, (): void => {
   it('translate by using the first found locale if no locale can by found closest to the requested one', (): void => {
     const localization = new Localization(dictionary, 'es-MX')
 
+    expect(localization.defaultLocale).toEqual('es-MX')
+
     localization.setLocale('ar')
+    expect(localization.defaultLocale).toEqual('es-MX')
     expect(localization.locale).toEqual('en')
     expect(localization.translate('hello')).toEqual('Hello')
     expect(localization.translate('world')).toEqual('World')

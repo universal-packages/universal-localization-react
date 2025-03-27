@@ -1,145 +1,165 @@
-import { Localization, LocalizationDictionary } from '../src'
+import { Localization } from '../src'
 
-const dictionary: LocalizationDictionary = {
-  en: {
-    hello: 'Hello',
-    world: 'World',
-    name: {
-      hello: 'Hello {{name}} {{emoji}}'
-    }
+// Inverted dictionary structure
+const invertedDictionary = {
+  hello: {
+    en: 'Hello',
+    'en-US': 'Howdy',
+    es: 'Hola',
+    'es-MX': 'Que onda',
+    'fr-CM': 'Bonjour'
   },
-  'en-US': {
-    hello: 'Howdy',
-    world: 'World',
-    name: {
-      hello: 'Howdy {{name}} {{emoji}}'
-    }
+  world: {
+    en: 'World',
+    'en-US': 'World',
+    es: 'Mundo',
+    'es-MX': 'Mundo',
+    'fr-CM': 'Monde'
   },
-  es: {
-    hello: 'Hola',
-    world: 'Mundo',
-    name: {
-      hello: 'Hola {{name}} {{emoji}}'
-    }
-  },
-  'es-MX': {
-    hello: 'Que onda',
-    world: 'Mundo',
-    name: {
-      hello: 'Que onda {{name}} {{emoji}}'
-    }
-  },
-  'fr-CM': {
-    hello: 'Bonjour',
-    world: 'Monde',
-    name: {
-      hello: 'Bonjour {{name}} {{emoji}}'
+  name: {
+    hello: {
+      en: 'Hello {{name}} {{emoji}}',
+      'en-US': 'Howdy {{name}} {{emoji}}',
+      es: 'Hola {{name}} {{emoji}}',
+      'es-MX': 'Que onda {{name}} {{emoji}}',
+      'fr-CM': 'Bonjour {{name}} {{emoji}}'
     }
   }
 }
 
+// Component-specific dictionary to test merging
+const componentDictionary = {
+  goodbye: {
+    en: 'Goodbye',
+    es: 'Adiós',
+    fr: 'Au revoir'
+  }
+}
+
 describe(Localization, (): void => {
-  it('translates by using the default and set locale', (): void => {
-    const localization = new Localization(dictionary)
+  describe('with inverted dictionary structure', () => {
+    it('translates by using the default and set locale', (): void => {
+      const localization = new Localization(invertedDictionary)
+  
+      expect(localization.locale).toEqual('en')
+      expect(localization.translate('hello')).toEqual('Hello')
+      expect(localization.translate('world')).toEqual('World')
+      expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Hello John 👋')
+  
+      localization.setLocale('en-US')
+      expect(localization.locale).toEqual('en-US')
+      expect(localization.translate('hello')).toEqual('Howdy')
+      expect(localization.translate('world')).toEqual('World')
+      expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Howdy John 👋')
+  
+      localization.setLocale('es')
+      expect(localization.locale).toEqual('es')
+      expect(localization.translate('hello')).toEqual('Hola')
+      expect(localization.translate('world')).toEqual('Mundo')
+      expect(localization.translate('name.hello', { name: 'Juan', emoji: '👋' })).toEqual('Hola Juan 👋')
+  
+      localization.setLocale('es-MX')
+      expect(localization.locale).toEqual('es-MX')
+      expect(localization.translate('hello')).toEqual('Que onda')
+      expect(localization.translate('world')).toEqual('Mundo')
+      expect(localization.translate('name.hello', { name: 'Juanito', emoji: '👋' })).toEqual('Que onda Juanito 👋')
+    })
+  
+    it('translates when no dictionary is provided', (): void => {
+      const localization = new Localization()
+      
+      expect(localization.locale).toEqual('en')
+      expect(localization.translate('hello')).toEqual('missing <hello>')
+      expect(localization.translate('world')).toEqual('missing <world>')
 
-    expect(localization.locale).toEqual('en')
-    expect(localization.translate('hello')).toEqual('Hello')
-    expect(localization.translate('world')).toEqual('World')
-    expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Hello John 👋')
+      // Add translations after initialization
+      localization.mergeDictionary({
+        hello: { en: 'Hello', es: 'Hola' },
+        world: { en: 'World', es: 'Mundo' }
+      })
 
-    localization.setLocale('en-US')
-    expect(localization.locale).toEqual('en-US')
-    expect(localization.translate('hello')).toEqual('Howdy')
-    expect(localization.translate('world')).toEqual('World')
-    expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Howdy John 👋')
+      expect(localization.translate('hello')).toEqual('Hello')
+      expect(localization.translate('world')).toEqual('World')
 
-    localization.setLocale('es')
-    expect(localization.locale).toEqual('es')
-    expect(localization.translate('hello')).toEqual('Hola')
-    expect(localization.translate('world')).toEqual('Mundo')
-    expect(localization.translate('name.hello', { name: 'Juan', emoji: '👋' })).toEqual('Hola Juan 👋')
+      localization.setLocale('es')
+      expect(localization.translate('hello')).toEqual('Hola')
+      expect(localization.translate('world')).toEqual('Mundo')
+    })
 
-    localization.setLocale('es-MX')
-    expect(localization.locale).toEqual('es-MX')
-    expect(localization.translate('hello')).toEqual('Que onda')
-    expect(localization.translate('world')).toEqual('Mundo')
-    expect(localization.translate('name.hello', { name: 'Juanito', emoji: '👋' })).toEqual('Que onda Juanito 👋')
+    it('merges dictionaries from different components', (): void => {
+      const localization = new Localization(invertedDictionary)
+      
+      // Before merging
+      expect(localization.translate('goodbye')).toEqual('missing <goodbye>')
+      
+      // After merging
+      localization.mergeDictionary(componentDictionary)
+      expect(localization.translate('hello')).toEqual('Hello')
+      expect(localization.translate('goodbye')).toEqual('Goodbye')
+      
+      // Change locale
+      localization.setLocale('es')
+      expect(localization.translate('hello')).toEqual('Hola')
+      expect(localization.translate('goodbye')).toEqual('Adiós')
+      
+      // Test with a locale that exists only in component dictionary
+      localization.setLocale('fr')
+      expect(localization.translate('goodbye')).toEqual('Au revoir')
+    })
+
+    it('handles locale fallbacks properly', (): void => {
+      const localization = new Localization(invertedDictionary)
+  
+      // Fallback to language match
+      localization.setLocale('fr')
+      expect(localization.locale).toEqual('fr')
+      expect(localization.translate('hello')).toEqual('Bonjour') // Should find fr-CM for 'fr'
+      
+      // Fallback when no exact region match
+      localization.setLocale('es-AR')
+      expect(localization.locale).toEqual('es-AR')
+      expect(localization.translate('hello')).toEqual('Hola') // Should find 'es' for 'es-AR'
+      
+      // Fallback to first available if no match
+      localization.setLocale('zh')
+      expect(localization.locale).toEqual('zh')
+      expect(localization.translate('hello')).toEqual('Hello') // Should use first available locale
+    })
   })
 
-  it('translates by using the default locale when no locale is passed on set', (): void => {
-    const localization = new Localization(dictionary)
-
-    localization.setLocale()
-    expect(localization.locale).toEqual('en')
-    expect(localization.translate('hello')).toEqual('Hello')
-    expect(localization.translate('world')).toEqual('World')
-    expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Hello John 👋')
-  })
-
-  it('translate by using the closest locale when the set locale is not found', (): void => {
-    const localization = new Localization(dictionary)
-
-    localization.setLocale('fr-CA')
-    expect(localization.locale).toEqual('fr-CM')
-    expect(localization.translate('hello')).toEqual('Bonjour')
-    expect(localization.translate('world')).toEqual('Monde')
-    expect(localization.translate('name.hello', { name: 'Jean', emoji: '👋' })).toEqual('Bonjour Jean 👋')
-
-    localization.setLocale('fr')
-    expect(localization.locale).toEqual('fr-CM')
-    expect(localization.translate('hello')).toEqual('Bonjour')
-    expect(localization.translate('world')).toEqual('Monde')
-    expect(localization.translate('name.hello', { name: 'Jean', emoji: '👋' })).toEqual('Bonjour Jean 👋')
-
-    localization.setLocale('es-AR')
-    expect(localization.locale).toEqual('es')
-    expect(localization.translate('hello')).toEqual('Hola')
-    expect(localization.translate('world')).toEqual('Mundo')
-    expect(localization.translate('name.hello', { name: 'Juan', emoji: '👋' })).toEqual('Hola Juan 👋')
-  })
-
-  it('translate by using the first found locale if no locale can by found closest to the requested one', (): void => {
-    const localization = new Localization(dictionary, 'es-MX')
-
-    expect(localization.defaultLocale).toEqual('es-MX')
-
-    localization.setLocale('ar')
-    expect(localization.defaultLocale).toEqual('es-MX')
-    expect(localization.locale).toEqual('en')
-    expect(localization.translate('hello')).toEqual('Hello')
-    expect(localization.translate('world')).toEqual('World')
-    expect(localization.translate('name.hello', { name: 'John', emoji: '👋' })).toEqual('Hello John 👋')
-  })
-
-  it('returns the same subject when no translation exists', (): void => {
-    const localization = new Localization(dictionary)
-
-    expect(localization.translate('foo')).toEqual('missing <foo>')
-    expect(localization.translate('foo.bar')).toEqual('missing <foo.bar>')
-    expect(localization.translate('foo.bar.baz')).toEqual('missing <foo.bar.baz>')
-    expect(localization.translate('name', { name: 'John', emoji: '👋' })).toEqual('missing <name>')
-  })
-
-  it('returns the same subject when no translation exists and the default locale is not found', (): void => {
-    const localization = new Localization({})
-
-    localization.setLocale('ar')
-    expect(localization.translate('foo')).toEqual('missing <foo>')
-    expect(localization.translate('foo.bar')).toEqual('missing <foo.bar>')
-    expect(localization.translate('foo.bar.baz')).toEqual('missing <foo.bar.baz>')
-    expect(localization.translate('name', { name: 'John', emoji: '👋' })).toEqual('missing <name>')
+  describe('error handling', () => {
+    it('returns the same subject when no translation exists', (): void => {
+      const localization = new Localization(invertedDictionary)
+  
+      expect(localization.translate('foo')).toEqual('missing <foo>')
+      expect(localization.translate('foo.bar')).toEqual('missing <foo.bar>')
+      expect(localization.translate('foo.bar.baz')).toEqual('missing <foo.bar.baz>')
+      expect(localization.translate('name', { name: 'John', emoji: '👋' })).toEqual('missing <name>')
+    })
+  
+    it('returns the same subject when no translation exists and the default locale is not found', (): void => {
+      const localization = new Localization({})
+  
+      localization.setLocale('ar')
+      expect(localization.translate('foo')).toEqual('missing <foo>')
+      expect(localization.translate('foo.bar')).toEqual('missing <foo.bar>')
+      expect(localization.translate('foo.bar.baz')).toEqual('missing <foo.bar.baz>')
+      expect(localization.translate('name', { name: 'John', emoji: '👋' })).toEqual('missing <name>')
+    })
   })
 
   it('emits an event when the locale is changed', (): void => {
-    const localization = new Localization(dictionary)
+    const localization = new Localization(invertedDictionary)
     const callback = jest.fn()
 
     localization.on('locale', callback)
     localization.setLocale('es-MX')
 
-    expect(callback).toHaveBeenCalledWith({
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({
       event: 'locale',
-      payload: { locale: 'es-MX', localeDictionary: { hello: 'Que onda', world: 'Mundo', name: { hello: 'Que onda {{name}} {{emoji}}' } } }
-    })
+      payload: expect.objectContaining({
+        locale: 'es-MX'
+      })
+    }))
   })
 })

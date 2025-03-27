@@ -1,3 +1,27 @@
+export type Translation = string
+export type LocaleTranslations = Partial<Record<Locale, Translation>>
+export type Dictionary = {
+  [key: string]: LocaleTranslations | Dictionary
+}
+
+export interface LocalizationOptions {
+  primaryDictionary: Dictionary
+  secondaryDictionary?: Dictionary
+  defaultLocale?: Locale
+}
+
+export interface LocalizationProviderProps extends React.PropsWithChildren {
+  dictionary?: Dictionary
+  locale?: Locale
+}
+
+export interface LocalizationContext {
+  dictionary?: Dictionary
+  locale: Locale
+  defaultLocale: Locale
+  setLocale: (locale: Locale) => void
+}
+
 export type Locale =
   | 'ar'
   | 'ar-AE'
@@ -512,34 +536,3 @@ export type Locale =
   | 'zh-HK'
   | 'zu'
   | 'zu-ZA'
-
-// Dictionary structure with locale at leaf level
-export type LocaleDictionaryEntry = {
-  [key in Locale]?: string
-}
-
-export type NestedDictionary = {
-  [key: string]: LocaleDictionaryEntry | NestedDictionary
-}
-
-// The localization dictionary is now only the new structure
-export type LocalizationDictionary = NestedDictionary
-
-// Provider props
-export interface LocalizationProviderProps extends React.PropsWithChildren {
-  dictionary?: LocalizationDictionary
-  defaultLocale?: Locale
-}
-
-// Better type for nested properties
-export type TranslateProxy<T extends NestedDictionary> = {
-  [K in keyof T]: T[K] extends LocaleDictionaryEntry
-    ? ((locales?: Record<string, any>) => string)
-    : T[K] extends NestedDictionary
-    ? TranslateProxy<T[K]>
-    : never
-} & ((locales?: Record<string, any>) => string)
-
-// Dynamic translateProxy type for useTranslate hook with specific dictionary
-export type DynamicTranslateProxy<T extends LocalizationDictionary = LocalizationDictionary> = 
-  TranslateProxy<T> & ((locales?: Record<string, any>) => string)

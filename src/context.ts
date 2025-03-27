@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 
-import Localization from './Localization'
+import { LocalizationContext } from './types'
 
-const localizationContext = createContext<Localization>(null as any)
+const localizationContext = createContext<LocalizationContext>(null as any)
 
 localizationContext.displayName = 'LocalizationContext'
 

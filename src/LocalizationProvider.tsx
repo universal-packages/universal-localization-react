@@ -1,32 +1,35 @@
-import { EmittedEvent } from '@universal-packages/event-emitter'
 import React from 'react'
 
-import Localization from './Localization'
 import context from './context'
 import { Locale, LocalizationProviderProps } from './types'
 
+// Store the last locale to persist between rerenders
 let LAST_LOCALE: Locale
 
 export default function LocalizationProvider(props: LocalizationProviderProps): React.ReactElement {
-  const localization = React.useMemo(() => new Localization(props.dictionary, props.defaultLocale), [props.dictionary, props.defaultLocale])
+  const defaultLocale = props.locale || 'en'
+  const [locale, setLocale] = React.useState<Locale>(defaultLocale)
 
+  // Create context value
+  const contextValue = React.useMemo(
+    () => ({
+      dictionary: props.dictionary,
+      locale,
+      defaultLocale,
+      setLocale: (newLocale: Locale) => {
+        LAST_LOCALE = newLocale
+        setLocale(newLocale)
+      }
+    }),
+    [props.dictionary, locale, defaultLocale]
+  )
+
+  // When the provider reloads, restore the previous locale if it exists
   React.useEffect(() => {
-    const changedListener = (event: EmittedEvent) => {
-      LAST_LOCALE = event.payload.locale
+    if (LAST_LOCALE && LAST_LOCALE !== locale) {
+      setLocale(LAST_LOCALE)
     }
+  }, [])
 
-    localization.on('locale', changedListener)
-
-    // When the react reloads because of a change on the dictionary, the locale is reset to the default locale
-    // and the one set previously is lost. This is a workaround to keep the locale between reloads.
-    if (LAST_LOCALE && LAST_LOCALE !== localization.locale) {
-      localization.setLocale(LAST_LOCALE)
-    }
-
-    return () => {
-      localization.off('locale', changedListener)
-    }
-  }, [localization])
-
-  return <context.Provider value={localization}>{props.children}</context.Provider>
+  return <context.Provider value={contextValue}>{props.children}</context.Provider>
 }

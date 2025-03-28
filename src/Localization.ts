@@ -54,7 +54,7 @@ export default class Localization<T = any, S = {}> extends EventEmitter {
         if (this.isLocaleTranslations(value)) {
           // If it's a leaf node (translations), return a function
           return (variables?: TemplateVariables) => {
-            const translation = this.getTranslation(value as LocaleTranslations, this.locale)
+            const translation = (value as LocaleTranslations)[this.locale]
 
             if (!translation) {
               this.emit('warning', { message: `No translation found for key "${currentPath.join('.')}" in locale "${this.locale}"` })
@@ -75,38 +75,6 @@ export default class Localization<T = any, S = {}> extends EventEmitter {
         return () => `[invalid key: ${currentPath.join('.')}]`
       }
     })
-  }
-
-  /**
-   * Get translation for a specific locale with fallback
-   */
-  private getTranslation(translations: LocaleTranslations, locale: Locale): string | undefined {
-    // Try exact locale match
-    if (translations[locale]) {
-      return translations[locale]
-    }
-
-    // Try base language match (e.g., 'en' for 'en-US')
-    const baseLanguage = locale.split('-')[0] as Locale
-    if (locale !== baseLanguage && translations[baseLanguage]) {
-      return translations[baseLanguage]
-    }
-
-    // Try any variant
-    if (locale !== baseLanguage) {
-      const variants = Object.keys(translations).filter((key) => key.startsWith(`${baseLanguage}-`))
-      if (variants.length > 0) {
-        return translations[variants[0] as Locale]
-      }
-    }
-
-    // Last resort: any translation
-    const keys = Object.keys(translations)
-    if (keys.length > 0) {
-      return translations[keys[0] as Locale]
-    }
-
-    return undefined
   }
 
   private mergeDictionaries(primary: Dictionary<T>, secondary?: Dictionary<S>): MergedDictionary<T, S> {

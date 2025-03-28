@@ -1,25 +1,46 @@
 export type Translation = string
 export type LocaleTranslations = Partial<Record<Locale, Translation>>
-export type Dictionary = {
-  [key: string]: LocaleTranslations | Dictionary
+
+// Make Dictionary accept a generic type parameter for nested dictionaries
+export type Dictionary<T = any> = {
+  [K in keyof T]: T[K] extends Record<Locale, string> ? LocaleTranslations : Dictionary<T[K]>
 }
 
-export interface LocalizationOptions {
-  primaryDictionary: Dictionary
-  secondaryDictionary?: Dictionary
+// Allow combining two dictionary types
+export type MergedDictionary<T, S = {}> = Dictionary<T & S>
+
+export interface LocalizationOptions<T = any, S = {}> {
+  primaryDictionary: Dictionary<T>
+  secondaryDictionary?: Dictionary<S>
   defaultLocale?: Locale
 }
 
 export interface LocalizationProviderProps extends React.PropsWithChildren {
-  dictionary?: Dictionary
+  dictionary?: Dictionary<any>
   locale?: Locale
 }
 
 export interface LocalizationContext {
-  dictionary?: Dictionary
+  dictionary?: Dictionary<any>
   locale: Locale
   defaultLocale: Locale
   setLocale: (locale: Locale) => void
+}
+
+// Types for the translate functionality
+export type TemplateVariables = Record<string, string | number | boolean>
+
+// Create a recursive type that represents the translation function structure
+// This matches what the proxy actually does at runtime
+export type TranslateFunction = {
+  (): string
+  (variables: TemplateVariables): string
+}
+
+// Function with properties type to represent the translation proxy
+// The proxy type should reflect both the primary and secondary dictionaries
+export type TranslationProxy<T, S = {}> = TranslateFunction & {
+  [K in keyof (T & S)]: (T & S)[K] extends Record<Locale, string> ? TranslateFunction : TranslationProxy<(T & S)[K]>
 }
 
 export type Locale =

@@ -1,9 +1,12 @@
-import { createContext } from 'react'
+import React from 'react'
 
-import { LocalizationContext } from './types'
+import { LocalizationContext, Locale } from './types'
 
-const localizationContext = createContext<LocalizationContext>(null as any)
+// Create a default context value
+const defaultContext: LocalizationContext = {
+  locale: 'en' as Locale,
+  defaultLocale: 'en' as Locale,
+  setLocale: () => {}
+}
 
-localizationContext.displayName = 'LocalizationContext'
-
-export default localizationContext
+export default React.createContext<LocalizationContext>(defaultContext)

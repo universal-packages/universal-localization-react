@@ -3,31 +3,32 @@ import React from 'react'
 import { localizationContext } from './context'
 import { Locale, LocalizationProviderProps } from './types'
 
-// Store the last locale to persist between rerenders
+// Store the last locale to persist between rerenders in development mode
 let LAST_LOCALE: Locale
 
 export function LocalizationProvider(props: LocalizationProviderProps): React.ReactElement {
   const defaultLocale = props.locale || 'en'
   const [locale, setLocale] = React.useState<Locale>(defaultLocale)
 
-  // Create context value
   const contextValue = React.useMemo(
     () => ({
       dictionary: props.dictionary,
       locale,
       defaultLocale,
       setLocale: (newLocale: Locale) => {
-        LAST_LOCALE = newLocale
+        if (process.env.NODE_ENV === 'development') LAST_LOCALE = newLocale
         setLocale(newLocale)
       }
     }),
     [props.dictionary, locale, defaultLocale]
   )
 
-  // When the provider reloads, restore the previous locale if it exists
+  // When the provider reloads the locale is lost, so we restore it for development purposes
   React.useEffect(() => {
-    if (LAST_LOCALE && LAST_LOCALE !== locale) {
-      setLocale(LAST_LOCALE)
+    if (process.env.NODE_ENV === 'development') {
+      if (LAST_LOCALE && LAST_LOCALE !== locale) {
+        setLocale(LAST_LOCALE)
+      }
     }
   }, [])
 

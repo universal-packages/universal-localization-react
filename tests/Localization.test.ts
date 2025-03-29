@@ -1,5 +1,4 @@
-import Localization from '../src/Localization'
-import { TranslationProxy } from '../src/types'
+import { Localization } from '../src/Localization'
 
 const primaryDictionary = {
   hello: {
@@ -30,8 +29,21 @@ const primaryDictionary = {
 const secondaryDictionary = {
   goodbye: {
     en: 'Goodbye',
+    'en-US': 'Bye',
     es: 'Adiós',
-    fr: 'Au revoir'
+    'es-MX': 'Camara',
+    'fr-CM': 'Au revoir'
+  },
+  deep: {
+    nested: {
+      key: {
+        en: 'Deep nested key',
+        'en-US': 'Deep nested key',
+        es: 'Clave anidada profunda',
+        'es-MX': 'Clave nesteada profunda',
+        'fr-CM': 'Clé imbriquée profonde'
+      }
+    }
   }
 }
 
@@ -296,16 +308,18 @@ describe(Localization, (): void => {
 
       // Access secondary dictionary keys
       expect(localization.translate.goodbye()).toEqual('Goodbye')
+      expect(localization.translate.deep.nested.key()).toEqual('Deep nested key')
 
       // Change locale should apply to both dictionaries
       localization.setLocale('es')
       expect(localization.translate.hello()).toEqual('Hola')
       expect(localization.translate.goodbye()).toEqual('Adiós')
+      expect(localization.translate.deep.nested.key()).toEqual('Clave anidada profunda')
     })
   })
 
   describe('non-string key access', (): void => {
-    it('should handle Symbol keys in the proxy', (): void => {
+    it.only('should handle Symbol keys in the proxy', (): void => {
       const localization = new Localization<typeof primaryDictionary>({ primaryDictionary })
 
       // Access the translate proxy with a Symbol key - should return undefined

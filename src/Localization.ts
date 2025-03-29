@@ -3,7 +3,7 @@ import { replaceVars } from '@universal-packages/variable-replacer'
 
 import { Dictionary, Locale, LocaleTranslations, LocalizationOptions, MergedDictionary, TemplateVariables, TranslationProxy } from './types'
 
-export default class Localization<T = any, S = {}> extends EventEmitter {
+export class Localization<T extends object = {}, S extends object = {}> extends EventEmitter {
   public readonly options: LocalizationOptions<T, S>
   public readonly dictionary: MergedDictionary<T, S>
   public readonly availableLocales: Set<Locale> = new Set()

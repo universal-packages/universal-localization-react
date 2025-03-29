@@ -1,12 +1,12 @@
 import React from 'react'
 
-import context from './context'
+import { localizationContext } from './context'
 import { Locale, LocalizationProviderProps } from './types'
 
 // Store the last locale to persist between rerenders
 let LAST_LOCALE: Locale
 
-export default function LocalizationProvider(props: LocalizationProviderProps): React.ReactElement {
+export function LocalizationProvider(props: LocalizationProviderProps): React.ReactElement {
   const defaultLocale = props.locale || 'en'
   const [locale, setLocale] = React.useState<Locale>(defaultLocale)
 
@@ -31,5 +31,5 @@ export default function LocalizationProvider(props: LocalizationProviderProps): 
     }
   }, [])
 
-  return <context.Provider value={contextValue}>{props.children}</context.Provider>
+  return <localizationContext.Provider value={contextValue}>{props.children}</localizationContext.Provider>
 }

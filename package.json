@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@universal-packages/event-emitter": "^1.2.1",
-    "@universal-packages/object-navigation": "^1.1.0",
     "@universal-packages/variable-replacer": "^1.8.0"
   },
   "devDependencies": {

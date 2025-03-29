@@ -12,277 +12,140 @@ React bindings for [Localization](https://github.com/universal-packages/universa
 npm install @universal-packages/localization-react
 ```
 
-> Localization react uses exclusively the react hooks API so make sure you are using a recent version of React.
+## LocalizationProvider
 
-## Dictionary Structure
+The `LocalizationProvider` component wraps your application to provide localization context to all components.
 
-The localization dictionary now follows an inverted structure with locales at the leaf level, providing a more natural organization:
-
-```js
-const dictionary = {
-  welcome: {
-    title: {
-      en: 'Welcome to our app',
-      es: 'Bienvenido a nuestra aplicación'
-    },
-    subtitle: {
-      en: 'Get started now',
-      es: 'Comienza ahora'
-    }
-  },
-  navigation: {
-    home: {
-      en: 'Home',
-      es: 'Inicio'
-    },
-    profile: {
-      en: 'Profile',
-      es: 'Perfil'
-    }
-  }
-}
-```
-
-This structure makes it easier to keep translations organized by feature rather than by language.
-
-## Provider
-
-Wrap your application with the `LocalizationProvider`. The dictionary is now optional, allowing for dynamic dictionary loading or component-specific dictionaries.
-
-```jsx
+```tsx
 import { LocalizationProvider } from '@universal-packages/localization-react'
 
-const App = () => {
+const dictionary = {
+  welcome: { en: 'Welcome', es: 'Bienvenido' },
+  greeting: { en: 'Hello {{name}}', es: 'Hola {{name}}' }
+}
+
+function App() {
   return (
-    <LocalizationProvider dictionary={dictionary} defaultLocale="en">
-      {/* Your application */}
+    <LocalizationProvider dictionary={dictionary} locale="en">
+      <YourApp />
     </LocalizationProvider>
   )
 }
 ```
 
-## Hooks
+## Using translations
 
-### **`useLocalization()`**
+### Basic usage
 
-Gets the context provided instance of the localization.
+The `useLocalization` hook gives access to translations in any component:
 
-```jsx
+```tsx
 import { useLocalization } from '@universal-packages/localization-react'
 
-const LanguageSwitcher = () => {
-  const localization = useLocalization()
-
-  const handleLanguageChange = (locale) => {
-    localization.setLocale(locale)
-  }
-
+function WelcomeMessage() {
+  const { translate } = useLocalization()
+  
   return (
     <div>
-      <button onClick={() => handleLanguageChange('en')}>English</button>
-      <button onClick={() => handleLanguageChange('es')}>Spanish</button>
-      <p>Current locale: {localization.locale}</p>
+      <h1>{translate.welcome()}</h1>
+      <p>{translate.greeting({ name: 'User' })}</p>
     </div>
   )
 }
 ```
 
-### **`useTranslate([dictionary], [locale])`**
+### Changing locale
 
-The enhanced `useTranslate` hook supports property-based access with TypeScript autocompletion, component-specific dictionaries, and forced locales. The hook automatically handles memoization, so there's no need to wrap your inputs with `useMemo`.
-
-#### Basic Usage:
+The `useSetLocale` hook provides a function to change the active locale:
 
 ```tsx
-import { useTranslate } from '@universal-packages/localization-react'
+import { useSetLocale } from '@universal-packages/localization-react'
 
-// For TypeScript autocomplete and type checking
-type AppDictionary = typeof dictionary;
-
-const BasicComponent = () => {
-  const translate = useTranslate<AppDictionary>()
-
+function LanguageSwitcher() {
+  const setLocale = useSetLocale()
+  
   return (
     <div>
-      {/* Property-based access */}
-      <h1>{translate.welcome.title()}</h1>
-      <p>{translate.welcome.subtitle()}</p>
+      <button onClick={() => setLocale('en')}>English</button>
+      <button onClick={() => setLocale('es')}>Español</button>
     </div>
   )
 }
 ```
 
-#### Property-Based Access with TypeScript Autocomplete:
+### Component-level dictionary and locale override
+
+Components can have their own dictionaries and even override the locale:
 
 ```tsx
-import { useTranslate } from '@universal-packages/localization-react'
-
-// For TypeScript autocomplete and type checking
-type AppDictionary = typeof dictionary;
-
-const ComponentWithAutocomplete = () => {
-  // With property-based access (provides TypeScript autocomplete)
-  const translate = useTranslate<AppDictionary>(dictionary)
-
-  return (
-    <div>
-      {/* Property-based access with function call */}
-      <h1>{translate.welcome.title()}</h1>
-      <p>{translate.welcome.subtitle()}</p>
-      
-      {/* With parameters */}
-      <p>{translate.user.greeting({ name: 'David' })}</p>
-      
-      {/* Nested properties are fully supported */}
-      <p>{translate.deeply.nested.property()}</p>
-      
-      {/* TypeScript will catch invalid properties */}
-      {/* This would cause a TypeScript error: */}
-      {/* translate.nonexistent.property() */}
-    </div>
-  )
-}
-```
-
-#### With Component-Specific Dictionary:
-
-```tsx
-import { useTranslate } from '@universal-packages/localization-react'
-
-// Component-specific translations
-const componentDictionary = {
-  specialFeature: {
-    title: {
-      en: 'Special Feature',
-      es: 'Característica Especial'
-    },
-    description: {
-      en: 'This is a {{type}} feature',
-      es: 'Esta es una característica {{type}}'
-    }
-  }
-}
-
-// Type for component dictionary
-type ComponentDict = typeof componentDictionary;
-
-const FeatureComponent = () => {
-  // Automatically merges with global dictionary
-  const translate = useTranslate<ComponentDict>(componentDictionary)
-
-  return (
-    <div>
-      {/* Access component-specific translations */}
-      <h2>{translate.specialFeature.title()}</h2>
-      <p>{translate.specialFeature.description({ type: 'premium' })}</p>
-      
-      {/* Access global translations */}
-      <footer>{translate.common.footer()}</footer>
-    </div>
-  )
-}
-```
-
-#### With Forced Locale:
-
-```tsx
-import { useTranslate } from '@universal-packages/localization-react'
-
-// For TypeScript autocomplete and type checking
-type AppDictionary = typeof dictionary;
-
-const AlwaysSpanishComponent = () => {
-  // Force Spanish locale for this component regardless of the app locale
-  const translate = useTranslate<AppDictionary>('es')
-
-  return (
-    <div>
-      {/* Always in Spanish regardless of the app locale */}
-      <p>{translate.welcome.title()}</p>
-    </div>
-  )
-}
-```
-
-#### With Both Dictionary and Forced Locale:
-
-```tsx
-import { useTranslate } from '@universal-packages/localization-react'
+import { useLocalization } from '@universal-packages/localization-react'
 
 const componentDictionary = {
-  legalNotice: {
-    title: {
-      en: 'Legal Notice',
-      fr: 'Mention Légale'
-    },
-    content: {
-      en: 'This content is legally required to be in French in some regions.',
-      fr: 'Ce contenu doit légalement être en français dans certaines régions.'
-    }
-  }
+  submitButton: { en: 'Submit', es: 'Enviar' }
 }
 
-// Type for component dictionary
-type ComponentDict = typeof componentDictionary;
-
-const LegalComponent = () => {
-  // Component dictionary with forced French locale
-  const translate = useTranslate<ComponentDict>(componentDictionary, 'fr')
-
+function Form() {
+  // Optional: component dictionary and locale override
+  const { translate } = useLocalization(componentDictionary, 'fr')
+  
   return (
-    <div>
-      {/* Always in French */}
-      <h3>{translate.legalNotice.title()}</h3>
-      <p>{translate.legalNotice.content()}</p>
-    </div>
+    <form>
+      {/* Component-specific translations */}
+      <button>{translate.submitButton()}</button>
+      
+      {/* Global translations are still accessible */}
+      <h2>{translate.welcome()}</h2>
+    </form>
   )
 }
 ```
 
-## Variable Replacement
+## Advanced features
 
-Variable replacement works with property-based access:
+### Nested translations
+
+Translation keys can be deeply nested:
 
 ```tsx
-// Dictionary
 const dictionary = {
-  greeting: {
-    welcome: {
-      en: 'Welcome, {{name}}!',
-      es: '¡Bienvenido, {{name}}!'
+  user: {
+    profile: {
+      title: { en: 'Profile', es: 'Perfil' },
+      fields: {
+        name: { en: 'Name', es: 'Nombre' }
+      }
     }
   }
 }
 
-// Property-based usage
-translate.greeting.welcome({ name: 'David' })
+// Access using dot notation
+translate.user.profile.title()
+translate.user.profile.fields.name()
 ```
 
-## TypeScript Support
+### Variable replacement
 
-This library is fully typed with TypeScript, providing autocomplete for your dictionary structure and type checking for valid paths:
+Include variables in your translations with double curly braces:
 
 ```tsx
-// Your dictionary will generate the proper type structure
-type AppDictionary = typeof dictionary;
+const dictionary = {
+  greeting: { 
+    en: 'Hello {{name}}!',
+    es: '¡Hola {{name}}!'
+  },
+  items: {
+    en: 'You have {{count}} {{item}}',
+    es: 'Tienes {{count}} {{item}}'
+  }
+}
 
-// The translate object will provide autocomplete for all dictionary keys
-const translate = useTranslate<AppDictionary>(dictionary);
-
-// Access with full TypeScript support
-translate.welcome.title() // ✓ Valid
-translate.welcome.invalid() // ✗ TypeScript error - property doesn't exist in dictionary
-translate.nonexistent.path() // ✗ TypeScript error - path doesn't exist in dictionary
+translate.greeting({ name: 'John' })  // "Hello John!"
+translate.items({ count: 5, item: 'messages' })  // "You have 5 messages"
 ```
 
-## Recent Improvements
+## Typescript
 
-- **Property-Based Access Only**: All translations now use property-based access with function calls at leaf nodes for improved consistency and type safety
-- **Enhanced Type Checking**: TypeScript will now properly check that all accessed translation keys exist in your dictionary
-- **Automatic Memorization**: Dictionary and locale inputs to `useTranslate` are automatically memoized, eliminating the need for manual `useMemo` calls
-- **Improved TypeScript Support**: Deep nested properties are properly typed with full autocomplete support without needing type assertions
-- **Simplified API**: Component-specific dictionaries and forced locales work seamlessly without any additional boilerplate
-- **Better Performance**: Optimized rendering with React's hooks to minimize unnecessary renders when locale changes
+This library is developed in TypeScript and shipped fully typed.
 
 ## Contributing
 

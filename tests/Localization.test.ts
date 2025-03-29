@@ -319,7 +319,7 @@ describe(Localization, (): void => {
   })
 
   describe('non-string key access', (): void => {
-    it.only('should handle Symbol keys in the proxy', (): void => {
+    it('should handle Symbol keys in the proxy', (): void => {
       const localization = new Localization<typeof primaryDictionary>({ primaryDictionary })
 
       // Access the translate proxy with a Symbol key - should return undefined
@@ -464,6 +464,42 @@ describe(Localization, (): void => {
 
       // This should access deep nested French version
       expect((localization.translate as any).deep.nested.level1.level2()).toEqual('Niveau 2')
+    })
+  })
+
+  describe('inferDefault static method', (): void => {
+    it('should return the default locale without requiring a full instance', (): void => {
+      const locale = Localization.inferDefault({ primaryDictionary })
+      expect(locale).toEqual('en')
+    })
+
+    it('should respect provided defaultLocale', (): void => {
+      const locale = Localization.inferDefault({ primaryDictionary, defaultLocale: 'es' })
+      expect(locale).toEqual('es')
+    })
+
+    it('should apply fallback logic for unavailable locales', (): void => {
+      const locale = Localization.inferDefault({ primaryDictionary, defaultLocale: 'en-GB' })
+      expect(locale).toEqual('en')
+    })
+
+    it('should fallback to base variants when base language not available', (): void => {
+      // Dictionary with only 'fr-CM' but no 'fr'
+      const frenchOnlyDictionary = {
+        hello: { 'fr-CM': 'Bonjour' }
+      }
+      
+      const locale = Localization.inferDefault({ 
+        primaryDictionary: frenchOnlyDictionary, 
+        defaultLocale: 'fr' 
+      })
+      
+      expect(locale).toEqual('fr-CM')
+    })
+    
+    it('should use first available locale when requested language has no match', (): void => {
+      const locale = Localization.inferDefault({ primaryDictionary, defaultLocale: 'ja' })
+      expect(locale).toEqual('en')
     })
   })
 })

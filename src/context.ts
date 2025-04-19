@@ -1,6 +1,7 @@
+import { Locale } from '@universal-packages/localization'
 import React from 'react'
 
-import { Locale, LocalizationContext } from './types'
+import { LocalizationContext } from './types'
 
 // Create a default context value
 const defaultContext: LocalizationContext = {

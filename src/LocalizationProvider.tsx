@@ -1,7 +1,8 @@
+import { Locale } from '@universal-packages/localization'
 import React from 'react'
 
 import { localizationContext } from './context'
-import { Locale, LocalizationProviderProps } from './types'
+import { LocalizationProviderProps } from './types'
 
 // Store the last locale to persist between rerenders in development mode
 let LAST_LOCALE: Locale

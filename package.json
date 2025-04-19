@@ -16,8 +16,7 @@
     "update-universal-dependencies": "umaintenance update-universal-dependencies"
   },
   "dependencies": {
-    "@universal-packages/event-emitter": "^1.2.1",
-    "@universal-packages/variable-replacer": "^1.8.0"
+    "@universal-packages/localization": "^1.5.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",

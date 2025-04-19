@@ -1,8 +1,9 @@
 import '@testing-library/jest-dom'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { Locale } from '@universal-packages/localization'
 import React from 'react'
 
-import { Locale, LocalizationProvider, useLocalization, useSetLocale } from '../src'
+import { LocalizationProvider, useLocalization, useSetLocale } from '../src'
 
 describe('localization-react', (): void => {
   beforeEach((): void => {

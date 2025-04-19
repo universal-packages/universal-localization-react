@@ -1,8 +1,7 @@
+import { Locale, Localization } from '@universal-packages/localization'
 import { useContext, useMemo } from 'react'
 
-import { Localization } from './Localization'
 import { localizationContext } from './context'
-import { Dictionary, Locale, TranslationProxy } from './types'
 
 /**
  * Hook to access and use localization in a component.
